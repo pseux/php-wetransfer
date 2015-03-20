@@ -1,3 +1,4 @@
+<?php
 
 $url = 'https://www.wetransfer.com/downloads/XXXXXXXX/YYY';
 $target = 'download.zip';
