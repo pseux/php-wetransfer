@@ -10,7 +10,7 @@ function downloadWeTransfer($url, $target)
 	$response = file_get_contents($virtual_link);
 	$response = json_decode($response, true);
 	
-	if ($direct_link = arp($response, 'direct_link')); 
+	if ($direct_link = $response['direct_link']);
 		else throw new Exception('Invalid URL (or WeTransfer changed things)');
 		
 	if (file_put_contents($target, file_get_contents($direct_link)) === false)
