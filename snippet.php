@@ -1,6 +1,6 @@
 <?php
 
-function downloadWeTransfer($url, $target)
+function downloadWeTransfer($url)
 {
 	set_time_limit(0);
 	preg_match('/https?:\/\/(www\.)?wetransfer\.com\/downloads\/(.+)/', $url, $matches);
@@ -21,50 +21,45 @@ function downloadWeTransfer($url, $target)
 
 	if (isset($response['direct_link']))
 	{
-		$result = download($response['direct_link'], $target, stream_context_create());
+		$query_data = parse_url($response['direct_link'], PHP_URL_QUERY);
+		parse_str($query_data, $query_params);
+		$filename = urldecode($query_params['filename']);
 
-		if (!$result) throw new Exception('Error saving file.');
+		$local_handle = fopen($filename, 'w+b');
+		$ch = curl_init();
+
+		curl_setopt($ch, CURLOPT_URL, $response['direct_link']);
+		curl_setopt($ch, CURLOPT_FILE, $local_handle);
+		curl_exec($ch);
+
+		curl_close($ch);
+		fclose($local_handle);
 		return true;
 	}
-	
+
 	if (isset($response['fields']))
 	{
+		$action  = $response['formdata']['action'];
 		$postdata = http_build_query($response['fields']);
-		$opts = array('http' => array(
-			'method'  => 'POST',
-			'header'  => 'Content-type: application/x-www-form-urlencoded',
-			'content' => $postdata
-		));
+		$filename = urldecode($response['fields']['filename']);
 
-		$context = stream_context_create($opts);
-		$result = download($response['formdata']['action'], $target, $context);
+		$local_handle = fopen($filename, 'w+b');
+		$ch = curl_init();
 
-		if (!$result) throw new Exception('Error saving file.');
+		curl_setopt($ch, CURLOPT_URL, $action . '?' . $postdata);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: application/x-www-form-urlencoded'));
+		curl_setopt($ch, CURLOPT_FILE, $local_handle);
+		curl_exec($ch);
+
+		curl_close($ch);
+		fclose($local_handle);
 		return true;
 	}
 
 	return false;
 }
 
-function download($file_source, $file_target, $context)
-{
-	$rh = fopen($file_source, 'rb', null, $context);
-	$wh = fopen($file_target, 'w+b');
-
-	if (!$rh || !$wh)
-		return false;
-
-	while (!feof($rh))
-		if (fwrite($wh, fread($rh, 4096)) === FALSE)
-			return false;
-
-	fclose($rh);
-	fclose($wh);
-
-	return true;
-}
-
 // -- Example:  
 
-downloadWeTransfer('https://www.wetransfer.com/downloads/XXXXXXXXXX/YYYYYYYYY', 'first.zip');
-downloadWeTransfer('https://www.wetransfer.com/downloads/XXXXXXXXXX/YYYYYYYYY/ZZZZZZZZ', 'second.zip');
+downloadWeTransfer('https://www.wetransfer.com/downloads/XXXXXXXXXX/YYYYYYYYY');
+downloadWeTransfer('https://www.wetransfer.com/downloads/XXXXXXXXXX/YYYYYYYYY/ZZZZZZZZ');
