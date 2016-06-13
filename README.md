@@ -1,17 +1,17 @@
 # php-wetransfer
 
-PHP script for downloading WeTransfer files (https://www.wetransfer.com/) from PHP
+A super simple PHP script for downloading WeTransfer files (https://www.wetransfer.com/)
 
-# Usage
+## Usage
 
 You should have a we transfer address similar to either:  
 https://www.wetransfer.com/downloads/XXXXXXXXXX/YYYYY or  
 https://www.wetransfer.com/downloads/XXXXXXXXXX/YYYYY/ZZZZZ
 
-Include the function code somewhere, and simply call the function:
+Include the function code somewhere, and simply call it:
 
-    downloadWeTransfer('https://www.wetransfer.com/downloads/XXXXXXXX/YYY', 'download.zip');
+    downloadWeTransfer('https://www.wetransfer.com/downloads/XXXXXXXX/YYY');
 
-# Acknowledgements
+## Acknowledgements
 
 Based on the python script:  https://github.com/superalex/py-wetransfer
